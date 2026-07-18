@@ -34,33 +34,44 @@ CHANNEL_ACCESS_TOKEN = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
 LINE_USER_ID = os.environ.get("LINE_USER_ID")
 
 
-def get_btc_price() -> dict:
-    """CoinGeckoからBTCの現在価格(JPY, USD)と24h変動率を取得する"""
+def get_crypto_prices() -> dict:
+    """CoinGeckoからBTC・HYPEの現在価格(JPY, USD)と24h変動率を取得する"""
     params = {
-        "ids": "bitcoin",
+        "ids": "bitcoin,hyperliquid",
         "vs_currencies": "jpy,usd",
         "include_24hr_change": "true",
     }
     res = requests.get(COINGECKO_URL, params=params, timeout=10)
     res.raise_for_status()
-    data = res.json()
-    return data["bitcoin"]
+    return res.json()
 
 
-def build_message(price_data: dict) -> str:
-    now = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y/%m/%d %H:%M")
-    jpy = price_data.get("jpy")
-    usd = price_data.get("usd")
-    change_24h = price_data.get("usd_24h_change", 0.0)
-
+def _format_coin_block(label: str, icon: str, coin_data: dict) -> str:
+    jpy = coin_data.get("jpy")
+    usd = coin_data.get("usd")
+    change_24h = coin_data.get("usd_24h_change", 0.0)
     arrow = "📈" if change_24h >= 0 else "📉"
 
-    message = (
-        f"₿ BTC価格情報 ({now})\n"
-        f"----------------------\n"
+    return (
+        f"{icon} {label}\n"
         f"JPY: ¥{jpy:,.0f}\n"
         f"USD: ${usd:,.2f}\n"
         f"24h変動: {arrow} {change_24h:+.2f}%"
+    )
+
+
+def build_message(prices: dict) -> str:
+    now = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y/%m/%d %H:%M")
+
+    btc_block = _format_coin_block("BTC", "₿", prices["bitcoin"])
+    hype_block = _format_coin_block("HYPE", "🟢", prices["hyperliquid"])
+
+    message = (
+        f"仮想通貨価格情報 ({now})\n"
+        f"----------------------\n"
+        f"{btc_block}\n"
+        f"----------------------\n"
+        f"{hype_block}"
     )
     return message
 
@@ -90,12 +101,12 @@ def send_line_message(message: str) -> None:
 
 def main():
     try:
-        price_data = get_btc_price()
+        prices = get_crypto_prices()
     except requests.RequestException as e:
-        print(f"BTC価格の取得に失敗しました: {e}")
+        print(f"価格の取得に失敗しました: {e}")
         sys.exit(1)
 
-    message = build_message(price_data)
+    message = build_message(prices)
     print(message)
     send_line_message(message)
 

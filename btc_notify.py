@@ -17,6 +17,7 @@ BTC価格取得 → LINE通知BOT
 import os
 import sys
 import datetime
+from zoneinfo import ZoneInfo
 import requests
 
 # .env を使いたい場合は python-dotenv を読み込む(なければ無視)
@@ -47,7 +48,7 @@ def get_btc_price() -> dict:
 
 
 def build_message(price_data: dict) -> str:
-    now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
+    now = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y/%m/%d %H:%M")
     jpy = price_data.get("jpy")
     usd = price_data.get("usd")
     change_24h = price_data.get("usd_24h_change", 0.0)

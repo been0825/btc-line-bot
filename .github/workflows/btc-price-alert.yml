@@ -1,0 +1,39 @@
+name: BTC Price Alert (5min)
+
+on:
+  schedule:
+    # 5分おきに実行(GitHub Actionsの最短間隔)
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # 価格ファイルをリポジトリにコミットするために必要
+
+jobs:
+  check-price:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests python-dotenv
+
+      - name: Run price alert script
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: python3 btc_price_alert.py
+
+      - name: Commit updated price file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add last_price.json
+          git diff --quiet --cached || git commit -m "Update last_price.json [skip ci]"
+          git push

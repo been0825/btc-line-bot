@@ -33,11 +33,12 @@ jobs:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
         run: python3 btc_price_alert.py
-
+        
       - name: Commit updated price file
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add last_price.json
           git diff --quiet --cached || git commit -m "Update last_price.json [skip ci]"
+          git pull --rebase origin main
           git push

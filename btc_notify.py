@@ -35,10 +35,10 @@ LINE_USER_ID = os.environ.get("LINE_USER_ID")
 
 
 def get_crypto_prices() -> dict:
-    """CoinGeckoからBTC・HYPEの現在価格(JPY, USD)と24h変動率を取得する"""
+    """CoinGeckoからBTC・HYPEの現在価格(USD)と24h変動率を取得する"""
     params = {
         "ids": "bitcoin,hyperliquid",
-        "vs_currencies": "jpy,usd",
+        "vs_currencies": "usd",
         "include_24hr_change": "true",
     }
     res = requests.get(COINGECKO_URL, params=params, timeout=10)

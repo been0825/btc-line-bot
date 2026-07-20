@@ -47,14 +47,12 @@ def get_crypto_prices() -> dict:
 
 
 def _format_coin_block(label: str, icon: str, coin_data: dict) -> str:
-    jpy = coin_data.get("jpy")
     usd = coin_data.get("usd")
     change_24h = coin_data.get("usd_24h_change", 0.0)
     arrow = "📈" if change_24h >= 0 else "📉"
 
     return (
         f"{icon} {label}\n"
-        f"JPY: ¥{jpy:,.0f}\n"
         f"USD: ${usd:,.2f}\n"
         f"24h変動: {arrow} {change_24h:+.2f}%"
     )

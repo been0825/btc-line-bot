@@ -64,8 +64,9 @@ def build_message(prices: dict) -> str:
     btc_block = _format_coin_block("BTC", "₿", prices["bitcoin"])
     hype_block = _format_coin_block("HYPE", "🟢", prices["hyperliquid"])
 
-    message = (
-        f"📊 仮想通貨価格 {now}\n"
+　　 message = (
+        f"📊 仮想通貨価格\n"
+        f"{now}\n"
         f"---------\n"
         f"{btc_block}\n"
         f"---------\n"

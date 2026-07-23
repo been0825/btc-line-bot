@@ -33,7 +33,7 @@ LINE_USER_ID = os.environ.get("LINE_USER_ID")
 def get_btc_price() -> dict:
     params = {
         "ids": "bitcoin",
-        "vs_currencies": "jpy,usd",
+        "vs_currencies": "usd",
     }
     res = requests.get(COINGECKO_URL, params=params, timeout=10)
     res.raise_for_status()
@@ -57,7 +57,6 @@ def save_current_price(price_data: dict) -> None:
     now = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).isoformat()
     record = {
         "usd": price_data["usd"],
-        "jpy": price_data["jpy"],
         "timestamp": now,
     }
     with open(PRICE_FILE, "w", encoding="utf-8") as f:
@@ -79,8 +78,8 @@ def build_alert_message(last_price: dict, current_price: dict, change_pct: float
         f"{now}\n"
         f"----------------------\n"
         f"{trend_line}\n"
-        f"前回: ¥{last_price['jpy']:,.0f} (${last_price['usd']:,.2f})\n"
-        f"現在: ¥{current_price['jpy']:,.0f} (${current_price['usd']:,.2f})"
+        f"前回: ${last_price['usd']:,.2f}\n"
+        f"現在: ${current_price['usd']:,.2f}"
     )
     return message
 
